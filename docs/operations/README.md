@@ -2,6 +2,10 @@
 
 This guide organizes runtime behavior documented by the package. It does not certify production readiness. Verify provider/client versions, permissions, transport security, limits, and failure behavior in the target environment before release.
 
+For Kubernetes edge traffic, operate NGINX Gateway Fabric or another Gateway API controller
+separately from Orbit. Use the [NGF deployment guide](../deployment/nginx-gateway-fabric.md) as a
+starting point. `orbit-gateway` itself only adds in-process CORS and gzip middleware.
+
 ## Configuration surface
 
 Environment names found in the package README:

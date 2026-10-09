@@ -1,0 +1,44 @@
+# Optional NGF-specific policies. Replace the route/service names and values for your cluster.
+# Requires the NGINX Gateway Fabric policy CRDs; these are not portable Gateway API resources.
+apiVersion: gateway.nginx.org/v1alpha1
+kind: ProxySettingsPolicy
+metadata:
+  name: orbit-payment-webhook-proxy
+  namespace: orbit
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: orbit-payment-webhooks
+  timeout:
+    connect: 5s
+    read: 30s
+    send: 30s
+---
+apiVersion: gateway.nginx.org/v1alpha1
+kind: UpstreamSettingsPolicy
+metadata:
+  name: orbit-core-upstream
+  namespace: orbit
+spec:
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: orbit-core
+  keepAlive:
+    # NGF/NGINX default is 32 idle connections per worker; tune with measured traffic and limits.
+    connections: 32
+---
+apiVersion: gateway.nginx.org/v1alpha1
+kind: ClientSettingsPolicy
+metadata:
+  name: orbit-payment-webhook-client
+  namespace: orbit
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: orbit-payment-webhooks
+  body:
+    # Match PaymentWebhookIngress's maximum raw body size (700 KiB).
+    maxSize: "716800"

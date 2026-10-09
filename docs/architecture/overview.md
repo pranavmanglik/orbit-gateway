@@ -4,7 +4,9 @@
 
 `orbit-gateway` provides optional HTTP middleware for Orbit's native ASGI runtime: explicit CORS
 policy and bounded gzip response compression. Core retains the middleware protocol, ASGI
-application, and middleware registration API; it does not bundle these policies.
+application, and middleware registration API; it does not bundle these policies. Kubernetes edge
+routing is handled by a separately operated Gateway API implementation such as NGINX Gateway
+Fabric, documented in the [deployment guide](../deployment/nginx-gateway-fabric.md).
 
 ```bash
 pip install orbit-core orbit-gateway
@@ -41,6 +43,11 @@ preserves existing `Vary` dimensions, skips streaming/already encoded bodies and
 statuses, and removes stale `Content-Length`. `Accept-Encoding` quality values follow the HTTP
 qvalue grammar; duplicate or malformed gzip/wildcard negotiation is rejected. Parsing is capped at
 64 KiB and 1,024 tokens.
+
+This Python package does not proxy arbitrary upstream requests or include NGINX binaries. A
+Kubernetes Gateway and HTTPRoute route traffic from the NGINX Gateway Fabric data plane to the
+Orbit Service. This keeps edge scaling, TLS termination, and service routing in the cluster's
+networking layer.
 
 ## Declared dependencies
 
