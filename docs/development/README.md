@@ -8,11 +8,17 @@ Use the checks for each language manifest present in this repository:
 
 ```bash
 python -m pip install -e '.[dev]' build
+pip-audit --skip-editable --progress-spinner off
 pytest
 ruff check src tests
 ruff format --check src tests
 mypy
 ```
+
+The local CPython 3.11.14, 3.12.14, 3.13.15, and 3.14.7 runs each passed 48 tests, lint,
+formatting, strict type checks, dependency audit, and wheel/source builds. The audit skips editable
+workspace distributions; audit those sibling packages in their own repositories. Hosted CI and
+deployment validation remain separate release gates.
 
 Optional SDKs and live-service tests are described by the package README. Do not run an opt-in live test against a shared or production service unless its own documentation explicitly supports that use.
 

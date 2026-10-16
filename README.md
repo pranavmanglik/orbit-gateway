@@ -13,7 +13,7 @@ pip install orbit-core orbit-gateway
 ```python
 from orbit import Application, ApplicationConfig
 from orbit.asgi import ASGIApplication
-from orbit_gateway import CORSMiddleware, GZipMiddleware
+from orbit_gateway import AdaptiveConcurrencyMiddleware, CORSMiddleware, GZipMiddleware
 
 app = Application(ApplicationConfig(name="example"))
 asgi = ASGIApplication(app)
@@ -25,6 +25,7 @@ asgi.add_middleware(
     )
 )
 asgi.add_middleware(GZipMiddleware(minimum_size=500))
+asgi.add_middleware(AdaptiveConcurrencyMiddleware(initial_limit=32, maximum_limit=128))
 ```
 
 Middleware is opt-in and explicitly attached; importing or installing this package does not alter
@@ -41,6 +42,12 @@ preserves existing `Vary` dimensions, skips streaming/already encoded bodies and
 statuses, and removes stale `Content-Length`. `Accept-Encoding` quality values follow the HTTP
 qvalue grammar; duplicate or malformed gzip/wildcard negotiation is rejected. Parsing is capped at
 64 KiB and 1,024 tokens.
+
+`AdaptiveConcurrencyMiddleware` optionally bounds in-process handler concurrency and adjusts its
+limit with a Vegas-style estimate from observed handler latency. That measurement is not
+socket-level RTT; use this as application overload control alongside Core's hard request limit and
+the edge proxy's connection limits. The limit and latency samples are process-local. Applications
+must configure its maximum below Core's hard request cap.
 
 ## Documentation
 
@@ -63,7 +70,9 @@ to install it.
 
 ## Status
 
-This package is pre-alpha; its API is not stable and it is not yet a published release. It supports
-Python 3.11 through 3.14.
+This package is an unpublished v0.1.0-alpha review candidate. Its API may change before a stable
+release. The declared support range is Python 3.11 through 3.14. Local CI-equivalent checks passed
+on CPython 3.11.14–3.14.7: 48 tests per version, Ruff lint/format, strict mypy, dependency audit,
+and wheel/source builds. Hosted CI and deployment validation remain release gates.
 
 Licensed under Apache-2.0.

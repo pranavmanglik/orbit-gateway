@@ -130,10 +130,12 @@ class GZipMiddleware:
                 quality_seen = False
                 for parameter in parameters.split(";"):
                     key, separator, raw = parameter.strip().partition("=")
-                    if key.lower() == "q" and separator:
+                    if key.lower() == "q":
                         if quality_seen:
                             return False
                         quality_seen = True
+                        if not separator:
+                            return False
                         if _QVALUE_PATTERN.fullmatch(raw) is None:
                             return False
                         quality = float(raw)

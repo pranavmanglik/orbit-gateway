@@ -13,7 +13,8 @@
 # limitations under the License.
 """Optional HTTP gateway middleware for Orbit's native ASGI pipeline."""
 
+from orbit_gateway.admission import AdaptiveConcurrencyMiddleware
 from orbit_gateway.compression import GZipMiddleware
 from orbit_gateway.cors import CORSMiddleware
 
-__all__ = ["CORSMiddleware", "GZipMiddleware"]
+__all__ = ["AdaptiveConcurrencyMiddleware", "CORSMiddleware", "GZipMiddleware"]

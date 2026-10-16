@@ -22,7 +22,7 @@ metadata:
   namespace: orbit
 spec:
   targetRefs:
-    - group: ""
+    - group: core
       kind: Service
       name: orbit-core
   keepAlive:

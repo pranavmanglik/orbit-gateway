@@ -79,7 +79,16 @@ async def test_gzip_quality_override_is_order_independent() -> None:
 
 @pytest.mark.parametrize(
     "header",
-    ("gzip;Q=0", "gzip;q=1.0000", "gzip;q=0.5e0", "gzip;q=-0.1", "gzip;q=2", "gzip;q=0."),
+    (
+        "gzip;Q=0",
+        "gzip;q",
+        "gzip;q;foo=bar",
+        "gzip;q=1.0000",
+        "gzip;q=0.5e0",
+        "gzip;q=-0.1",
+        "gzip;q=2",
+        "gzip;q=0.",
+    ),
 )
 def test_gzip_rejects_non_rfc_quality_values(header: str) -> None:
     assert not GZipMiddleware._accepts_gzip((header,))  # noqa: SLF001

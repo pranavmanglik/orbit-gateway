@@ -4,7 +4,8 @@ This guide organizes runtime behavior documented by the package. It does not cer
 
 For Kubernetes edge traffic, operate NGINX Gateway Fabric or another Gateway API controller
 separately from Orbit. Use the [NGF deployment guide](../deployment/nginx-gateway-fabric.md) as a
-starting point. `orbit-gateway` itself only adds in-process CORS and gzip middleware.
+starting point. `orbit-gateway` adds in-process CORS, gzip, and optional adaptive concurrency
+middleware; it does not operate the edge proxy.
 
 ## Configuration surface
 
@@ -17,7 +18,7 @@ Use the package README's constructor and deployment examples. Store credentials 
 ## Lifecycle, failure behavior, and limits
 
 `orbit-gateway` provides optional HTTP middleware for Orbit's native ASGI runtime: explicit CORS
-policy and bounded gzip response compression. Core retains the middleware protocol, ASGI
+policy, bounded gzip response compression, and adaptive in-process handler admission. Core retains the middleware protocol, ASGI
 application, and middleware registration API; it does not bundle these policies.
 
 ```bash
@@ -56,10 +57,19 @@ statuses, and removes stale `Content-Length`. `Accept-Encoding` quality values f
 qvalue grammar; duplicate or malformed gzip/wildcard negotiation is rejected. Parsing is capped at
 64 KiB and 1,024 tokens.
 
+Set `AdaptiveConcurrencyMiddleware.maximum_limit` below Core's `max_concurrent_requests` hard cap.
+Tune the additive-increase/multiplicative-decrease thresholds and sample window under representative
+load. Its bounded latency history measures time in the wrapped handler, not socket RTT. Every worker
+maintains an independent limit and sample window; use the edge proxy for connection-level and
+cross-replica protection. Saturated admission returns `503` with a configured `Retry-After` value.
+Core's ASGI runtime, not the middleware, rejects new requests during shutdown and drains active
+request tasks within its configured lifecycle window.
+
 ## Status
 
-This package is pre-alpha; its API is not stable and it is not yet a published release. It supports
-Python 3.11 through 3.14.
+This package is an unpublished v0.1.0-alpha review candidate. Its API may change before a stable
+release. The declared support range is Python 3.11 through 3.14. Local checks do not substitute for
+hosted CI or deployment validation.
 
 Licensed under Apache-2.0.
 

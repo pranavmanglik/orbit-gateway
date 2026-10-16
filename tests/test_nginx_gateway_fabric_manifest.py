@@ -41,7 +41,9 @@ def test_optional_ngf_policies_scope_webhook_timeouts_and_upstream_keepalive() -
         "send": "30s",
     }
     assert upstream_settings["kind"] == "UpstreamSettingsPolicy"
-    assert upstream_settings["spec"]["targetRefs"][0]["name"] == "orbit-core"
+    assert upstream_settings["spec"]["targetRefs"] == [
+        {"group": "core", "kind": "Service", "name": "orbit-core"}
+    ]
     assert upstream_settings["spec"]["keepAlive"]["connections"] == 32
     assert client_settings["kind"] == "ClientSettingsPolicy"
     assert client_settings["spec"]["targetRef"]["name"] == "orbit-payment-webhooks"
